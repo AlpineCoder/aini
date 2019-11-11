@@ -19,11 +19,12 @@ type Hosts struct {
 }
 
 type Host struct {
-	Name       string
-	Port       int
-	User       string
-	Pass       string
-	PrivateKey string
+	Name        string
+	Port        int
+	User        string
+	Pass        string
+	PrivateKey  string
+	OSENodeType string
 }
 
 func NewFile(f string) (*Hosts, error) {
@@ -123,8 +124,15 @@ func parseParameters(params []string, host *Host) {
 		} else if strings.Contains(p, "ansible_ssh_private_key_file") {
 			host.PrivateKey = strings.Split(p, "=")[1]
 			continue
+			// OSE specific stuff
+		} else if strings.Contains(p, "openshift_node_group_name") {
+			nodeType := strings.Split(p, "=")[1]
+			nodeType = strings.ReplaceAll(nodeType, "'", "")
+			host.OSENodeType = nodeType
+
+			continue
 		} else {
-			fmt.Printf("unsupported ssh parameter: %v\n", p)
+			fmt.Printf("unsupported node parameter: %v\n", p)
 			continue
 		}
 	}
